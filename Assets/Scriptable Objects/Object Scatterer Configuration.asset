@@ -1,0 +1,19 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aec29567cd584c25889de6a5aabb362c, type: 3}
+  m_Name: Object Scatterer Configuration
+  m_EditorClassIdentifier: Assembly-CSharp::DefaultNamespace.ObjectScattererConfiguration
+  <Prefabs>k__BackingField:
+  - {fileID: 7984819082845374652, guid: f4adc12c3187d2748b82c64af61ad938, type: 3}
+  - {fileID: 7368597781751732777, guid: 3e772c890dd1097479d635925079d604, type: 3}
+  - {fileID: 7201837804348613725, guid: 4c3fdc4c9086867438cdda938848bcbe, type: 3}
+  - {fileID: 2360415872371186779, guid: 68fead84293a6b4439470de27611a0b0, type: 3}
