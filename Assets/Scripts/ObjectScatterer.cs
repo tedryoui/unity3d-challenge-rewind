@@ -40,6 +40,9 @@ public class ObjectScatterer : MonoBehaviour
 
             var output = Core.Instantiate(configPrefab, _scatterPoint.position + scatterDirection, quaternion.identity);
 
+            if (output.TryGetComponent<RigidBodyHelper>(out var rbHelper))
+                rbHelper.ForceDynamic();
+
             await Awaitable.WaitForSecondsAsync(_scatterDelay, _cancellationTokenSource.Token);
             
             objects[index] = output;

@@ -12,9 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 85673a6f279748b9979eeb7882cee8ff, type: 3}
   m_Name: Character Configuration
   m_EditorClassIdentifier: Assembly-CSharp::DefaultNamespace.CharacterConfiguration
-  <Move_Speed>k__BackingField: 1
+  <Move_Speed>k__BackingField: 1.6
   <Walk_Animation_Speed>k__BackingField: 1.5
-  <Run_Speed>k__BackingField: 2
+  <Run_Speed>k__BackingField: 3.2
   <Run_Animation_Speed>k__BackingField: 1.5
   <Angular_Speed>k__BackingField: 10
-  <Push_Force>k__BackingField: 5
+  <Push_Force>k__BackingField: 6

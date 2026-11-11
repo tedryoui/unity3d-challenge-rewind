@@ -45,14 +45,18 @@ namespace DefaultNamespace
                 frames[i] = _ringBuffer[(uint)(count - 1 - i)];
 
                 if (i > 0)
-                    distance += math.distance(frames[i - 1].position, frames[i].position);
+                {
+                    float posDist = math.distance(frames[i - 1].position, frames[i].position);
+                    float rotDist = Quaternion.Angle(Quaternion.Euler(frames[i - 1].rotation), Quaternion.Euler(frames[i].rotation)) / 90.0f;
+                    distance += Mathf.Max(posDist, rotDist);
+                }
             }
 
             return new JobRewindEntry
             {
                 target   = _target,
                 frames   = frames,
-                duration = Mathf.Max(0.01f, distance / Mathf.Max(0.01f, _rewindSpeed)),
+                duration = Mathf.Max(0.25f, distance / Mathf.Max(0.01f, _rewindSpeed)),
                 elapsed  = 0.0f
             };
         }

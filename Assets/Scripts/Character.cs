@@ -114,12 +114,21 @@ public class Character : MonoBehaviour
     {
         Rigidbody body = hit.collider.attachedRigidbody;
 
-        if (body == null || body.isKinematic)
+        if (body == null)
             return;
 
         Vector3 pushDirection = new Vector3(hit.moveDirection.x, 0.1f, hit.moveDirection.z);
 
-        body.linearVelocity = pushDirection * _config.Push_Force;
+        if (body.TryGetComponent<RigidBodyHelper>(out var helper))
+        {
+            helper.ActivateAndAddForce(pushDirection * _config.Push_Force, ForceMode.VelocityChange);
+            return;
+        }
+
+        if (body.isKinematic)
+            return;
+
+        body.AddForce(pushDirection * _config.Push_Force, ForceMode.VelocityChange);
     }
 
     private void OnGUI()

@@ -25,12 +25,20 @@ namespace DefaultNamespace
         [OnEnteringPlayMode]
         public static void OnCreate()
         {
-            _rewindInstances = new HashSet<IRewind>();
-            _isRewinding     = false;
+            if (_rewindInstances is null)
+                _rewindInstances = new HashSet<IRewind>();
+
+            _isRewinding = false;
 
             CreateRewindDebugger();
 
             Core.TrackOnObjectInstantiate("RewindInitializer", InjectRewindObject);
+
+            foreach (var rewind in Object.FindObjectsByType<MonoBehaviour>(FindObjectsSortMode.None))
+            {
+                if (rewind is IRewind rewindInstance)
+                    _rewindInstances.Add(rewindInstance);
+            }
         }
 
         private static void CreateRewindDebugger()
@@ -41,11 +49,27 @@ namespace DefaultNamespace
             obj.AddComponent<RewindDebugger>();
         }
 
+        public static void Register(IRewind rewind)
+        {
+            if (_rewindInstances is null)
+                _rewindInstances = new HashSet<IRewind>();
+
+            if (IsAlive(rewind))
+                _rewindInstances.Add(rewind);
+        }
+
+        public static void Unregister(IRewind rewind)
+        {
+            _rewindInstances?.Remove(rewind);
+        }
+
         private static void InjectRewindObject(Object unityObject)
         {
-            if (unityObject is GameObject unityGameObject &&
-                unityGameObject.TryGetComponent(out IRewind rewind))
-                _rewindInstances.Add(rewind);
+            if (unityObject is GameObject unityGameObject)
+            {
+                foreach (var rewind in unityGameObject.GetComponentsInChildren<IRewind>(true))
+                    Register(rewind);
+            }
         }
 
         private static bool IsAlive(IRewind rewind)

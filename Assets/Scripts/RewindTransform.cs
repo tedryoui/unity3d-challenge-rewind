@@ -29,7 +29,12 @@ namespace DefaultNamespace
         private bool _isRecorderStopped;
         private bool _isRewindActive;
 
-        public bool CanRewind => _rewindBuffer.Count > 2 && !_isRewindActive;
+        private Vector3    _initialPosition;
+        private Vector3    _initialRotation;
+        private Vector3    _initialScale;
+        private Rigidbody  _rigidbody;
+
+        public bool CanRewind => !_isRewindActive && HasMovedFromInitialPose();
 
         public CancellationToken LifetimeToken => destroyCancellationToken;
         
@@ -37,16 +42,60 @@ namespace DefaultNamespace
         {
             _isRecorderStopped = false;
             _isRewindActive    = false;
+            _rigidbody         = GetComponent<Rigidbody>();
             
             _rewindBuffer      = new RingBufferRef<TransformRewindStamp>((uint)_trackAmount);
         }
 
+        private void OnEnable()
+        {
+            RewindSystem.Register(this);
+        }
+
+        private void OnDisable()
+        {
+            RewindSystem.Unregister(this);
+        }
+
+        private void OnDestroy()
+        {
+            RewindSystem.Unregister(this);
+            _rewindBuffer?.Dispose();
+        }
+
         private void Start()
         {
+            _initialPosition = transform.position;
+            _initialRotation = transform.eulerAngles;
+            _initialScale    = transform.localScale;
+
             _monoProvider = new MonoRewindTransformProvider(transform, _rewindBuffer, _rewindSpeed);
             _jobProvider  = new JobRewindTransformProvider(transform, _rewindBuffer, _rewindSpeed);
+
+            CreateStamp();
             
             _ = RunStampRecorder();
+        }
+
+        private bool HasMovedFromInitialPose()
+        {
+            if (_rewindBuffer.Count == 0)
+                return false;
+
+            float distSq = math.distancesq(transform.position, (float3)_initialPosition);
+            if (distSq > 0.0001f)
+                return true;
+
+            if (Quaternion.Angle(transform.rotation, Quaternion.Euler(_initialRotation)) > 0.5f)
+                return true;
+
+            for (uint i = 0; i < _rewindBuffer.Count; i++)
+            {
+                if (math.distancesq(_rewindBuffer[i].position, (float3)_initialPosition) > 0.0001f)
+                    return true;
+            }
+
+            return false;
         }
 
         private async Awaitable RunStampRecorder()
@@ -59,7 +108,7 @@ namespace DefaultNamespace
 
             while (!cts.IsCancellationRequested)
             {
-                if (_isRecorderStopped)
+                if (_isRecorderStopped || (_rigidbody != null && _rigidbody.isKinematic))
                 {
                     timer = 0.0f;
                     await Awaitable.NextFrameAsync(cts.Token);
@@ -82,6 +131,8 @@ namespace DefaultNamespace
         {
             _isRecorderStopped = true;
             _isRewindActive    = true;
+
+            CreateStamp();
             
             _onStart.Invoke();
         }

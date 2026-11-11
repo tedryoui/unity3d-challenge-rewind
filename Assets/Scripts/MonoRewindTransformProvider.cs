@@ -74,10 +74,12 @@ namespace DefaultNamespace
 
             for (uint index = 1; index < count; index++)
             {
-                distance += math.distance(ringBuffer[index - 1].position, ringBuffer[index].position);
+                float posDist = math.distance(ringBuffer[index - 1].position, ringBuffer[index].position);
+                float rotDist = Quaternion.Angle(Quaternion.Euler(ringBuffer[index - 1].rotation), Quaternion.Euler(ringBuffer[index].rotation)) / 90.0f;
+                distance += Mathf.Max(posDist, rotDist);
             }
 
-            return distance;
+            return Mathf.Max(0.25f, distance);
         }
 
 #region Helpers
